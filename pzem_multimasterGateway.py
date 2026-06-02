@@ -9,6 +9,11 @@ import time
 import requests 
 from serial.tools import list_ports
 
+#Traer las variables 
+from pzem_multimaster import read_pzem, ins
+medidas = read_pzem(ins)
+
+
 # ── Configuración ────────────────────────────────────────
 PORT      = 'COM9'       # Ajuste al COM real (Linux: '/dev/ttyUSB0')
 BAUDRATE  = 9600
@@ -59,6 +64,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 print(f"Gateway iniciado — Puerto: {PORT}  UDP: {UDP_IP}:{UDP_PORT}")
 print(f"Esclavos: {[s for s in SLAVES]}\n")
 
+
 # ── Bucle principal ──────────────────────────────────────
 while True:
     for slave in SLAVES:
@@ -86,9 +92,9 @@ while True:
             
             datos = {
                 "meter_id"   : slave,
-                "voltage"    : result["V"],
-                "current"    : result["I"],
-                "energy_kWh" : result["E"] / 1000.0,  # Wh → kWh
+                "voltage"    : medidas["V"],
+                "current"    : medidas["I"],
+                "energy_kWh" : medidas["E"] / 1000.0,  # Wh → kWh
             }
             requests.post(URL_DASHBOARD, json=datos, timeout=3)
 
